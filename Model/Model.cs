@@ -45,6 +45,31 @@ namespace Bintronic_Inspect
     {
         public bool success { get; set; } = false; //bool；回傳API執行成功與否(true or false)
         public string message { get; set; } = string.Empty; //字串；執行錯誤時的訊息內容
+    }
 
+    public class InspectMemberSelectSend //要讀取檢測人員資料要傳給API的Json物件
+    {
+        public string crud { get; set; } = "read"; //疑似資料讀取 (read)
+        public InspectMemberSelectSendData data { get; set; } = new InspectMemberSelectSendData(); //要讀取檢測人員資料所需要傳送的員工編號
+    }
+
+    public class InspectMemberSelectSendData //要讀取檢測人員資料所需要傳送的員工編號
+    {
+        public string EmpNum { get; set; } = string.Empty; //員工編號
+    }
+
+    public class InspectMemberResponse //讀取檢測人員的API回傳資料
+    {
+        public bool success { get; set; } = false; //bool；回傳API執行成功與否(true or false)
+        public string message { get; set; } = string.Empty; //字串；執行錯誤時的訊息內容
+        public InspectMemberData data { get; set; } = new InspectMemberData(); //測試人員資料
+    }
+
+    public class InspectMemberData //檢測人員資料
+    {
+        public string EmpNum { get; set; } = string.Empty; //員工編號
+        public string Name { get; set; } = string.Empty; //人員名稱
+        public string Telphone { get; set; } = string.Empty; //電話
+        public string Remark { get; set; } = string.Empty; //備註
     }
 }

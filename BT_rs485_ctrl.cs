@@ -321,51 +321,54 @@ namespace Bintronic_rs485BOX_inspect
             return true;
         }
 
-        /* read_meter 讀電流錶的數值
+		/* read_meter 讀電流錶的數值
          * input: port_idx，通訊埠序號，0: 用P4通訊，1: 用P5通訊
          * 回傳值: true(正常)、false(錯誤)
          * output: ErrorInfo: 若return false時，這裡紀錄錯誤內容
          */
-        public static bool read_meter(out string ErrorInfo)
-        {
-            ErrorInfo = "";
-            
-            var client = new ModbusRtuClient()
-            {
-                BaudRate = 9600,
-                Parity = Parity.None,
-                StopBits = StopBits.One,
-                ReadTimeout = 1000
-            };
+		public static bool read_meter(out string ErrorInfo)
+		{
+			ErrorInfo = "";
 
-            try
-            {
-                client.Connect(g_com_port_info[2].com_port, ModbusEndianness.BigEndian);
+			var client = new ModbusRtuClient()
+			{
+				BaudRate = 9600,
+				Parity = Parity.None,
+				StopBits = StopBits.One,
+				ReadTimeout = 1000
+			};
 
-                var shortData = client.ReadHoldingRegisters<short>(1, 0, 3);
+			try
+			{
+				client.Connect(g_com_port_info[2].com_port, ModbusEndianness.BigEndian);
 
-                g_meter_data.voltage = ((double)shortData[0]) / 100;
-                g_meter_data.current = ((double)shortData[1]) / 1000;
-                g_meter_data.temperature = shortData[2];
-                g_meter_data.data_time = DateTime.Now;
-                client.Close();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                ErrorInfo = "錯誤!!" + Environment.NewLine + "ERROR!! " + Environment.NewLine + ex.ToString();
-                g_meter_data.voltage = 0;
-                g_meter_data.current = 0;
-                g_meter_data.temperature = 0;
-                g_meter_data.data_time = new DateTime(1970,1,1);
-                if (client.IsConnected)
-                    client.Close();
-                return false;
-            }
-        }
+				var shortData = client.ReadHoldingRegisters<short>(1, 2, 2);
 
-        //RS485 通訊控制 =================================================================================================
-        /*RS485_BOX_READ 讀控制盒暫存器數值
+				g_meter_data.voltage = ((double)shortData[1]) * 0.01;
+				g_meter_data.current = ((((((double)shortData[0]) - ((double)shortData[0]) / 6))) / 2) * 0.001;
+				if (g_meter_data.current < 0 && g_meter_data.current >= (-0.007))//0 ~ -0.007 = 0
+					g_meter_data.current = 0;
+				//g_meter_data.current = ((double)shortData[0]) ;
+				g_meter_data.temperature = ((double)shortData[0]);
+				g_meter_data.data_time = DateTime.Now;
+				client.Close();
+				return true;
+			}
+			catch (Exception ex)
+			{
+				ErrorInfo = "錯誤!!" + Environment.NewLine + "ERROR!! " + Environment.NewLine + ex.ToString();
+				g_meter_data.voltage = 0;
+				g_meter_data.current = 0;
+				g_meter_data.temperature = 0;
+				g_meter_data.data_time = new DateTime(1970, 1, 1);
+				if (client.IsConnected)
+					client.Close();
+				return false;
+			}
+		}
+
+		//RS485 通訊控制 =================================================================================================
+		/*RS485_BOX_READ 讀控制盒暫存器數值
          * 回傳值: true(正常)、false(錯誤)
          * input: port_name: 通訊埠名稱，EX: com1、com2...
          * input: ID: 控制盒ID
@@ -373,7 +376,7 @@ namespace Bintronic_rs485BOX_inspect
          * output: ack_value: 回傳的資料內容(short)
          * output: info: 若return false時，這裡紀錄錯誤內容
          */
-        private static bool RS485_BOX_READ(string port_name, int ID, short address, out short ack_value, out string info)
+		private static bool RS485_BOX_READ(string port_name, int ID, short address, out short ack_value, out string info)
         {
             ack_value = 0;
             info = "";
