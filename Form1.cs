@@ -30,7 +30,7 @@ namespace Bintronic_Inspect
         IniManager _iniManager = new IniManager(System.Windows.Forms.Application.StartupPath + "\\parameter.ini"); //用來讀取INI的程式，並以執行檔的位置作為INI的儲存位置
         const string CONFIG_FILE_NAME = "com_port_device.cfg";
 
-        bool _bolIsDebug = true; //全ON跳過PASS
+        bool _bolIsDebug = false; //全ON跳過PASS
         bool _IsAllSuccess = true; //是否全部成功，只要有一個失敗則改成false，且初始化改回true
 
         //bool _bolIsReciproca = true; //是否啟用到數 ()
